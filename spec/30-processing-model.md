@@ -1,38 +1,38 @@
 # Processing Model
 
-This section describes the behavior of a tracing system when a new request is received. 
-As stated above, tracing systems can decide for each request whether they want to just _forward_ or _participate_ in a trace context. Additionally, when participating, a system needs to be able to start or restart a trace.
+This section describes the behavior of a tracing system when a request is received.
+As stated above, tracing systems can decide for each request whether they want to just _forward_ or _participate_ in a Trace Context. Additionally, when participating, a system needs to be able to start or restart a trace.
 
 ## Processing Model in Forwarding Mode
 
-In forwarding mode, a tracing system decides to forward tracing information but does not modify the trace-context headers. The request is then considered as not sampled.
+In forwarding mode, a tracing system decides to forward tracing information but does not modify the Trace Context headers.
 
-1. The tracing system receives a `traceparent` header may receive a `tracecontext`. 
+1. The tracing system receives a `traceparent` header may receive a `tracestate`.
 2. The tracing system tries to parse the version of the `traceparent` header.
   - If the version prefix cannot be parsed (it's not 2 hex characters followed by a dash (`-`)), the implementation should restart the trace.
-     > **PENDING DECISION**: If a system is in forwarding only mode. It cannot start a trace. (Issue: https://github.com/w3c/trace-context/issues/220)
-  - If the version is higher than supported by the tracing system, does no further validations. 
+  - If the version is higher than supported by the tracing system, does no further validations.
 3. When the tracing system supports the version number, it validates `trace-id` and `parent-id`
-  - If `trace-id` and `parent-id` are valid, the tracing system adds the entire `trace-context` to all outgoing request originating from the current incoming request. 
-  - If either `trace-id` or `parent-id` is invalid, the tracing system does not add the trace context to any outgoing requests.
-    > **PENDING DECISION**: We never explicitly defined this, but I think this is what should happen. (Issue: https://github.com/w3c/trace-context/issues/220)
+  - If `trace-id` and `parent-id` are valid, the tracing system adds all Trace Context headers to all outgoing request originating from the current incoming request.
+  - If either `trace-id` or `parent-id` is invalid, the tracing system does not add the Trace Context to any outgoing requests.
 
 ## Processing Model in Participation Mode
 
-In participation mode, the tracing system decides to forward **and** modify trace-context headers. The request is then considered as sampled.
+In participation mode, the tracing system decides to forward **and** modify Trace Context headers.
 
-1. The tracing system receives a `traceparent` header and may receive `tracecontext`. 
+1. The tracing system receives a `traceparent` header and may receive `tracestate`.
 2. The tracing system tries to parse the version of the `traceparent` header.
-  - If the version prefix cannot be parsed (it's not 2 hex characters followed by a dash (`-`)), the tracing system creates a new `traceparent` header and removes all entries from `tracecontext`. 
-  - If the version number is higher than supported by the tracing implementation, the implementation uses the format defined in this specification to parse `trace-id` and `parent-id`. The tracing system will only parse `flags` values supported by the current version of this specification and ignore all other values. If parsing fails, the tracing system creates a new `traceparent` header and removes all entries from `tracecontext`. 
+  - If the version prefix cannot be parsed (it's not 2 hex characters followed by a dash (`-`)), the tracing system creates a new `traceparent` header and removes all entries from `tracestate`.
+  - If the version number is higher than supported by the tracing implementation, the implementation uses the format defined in this specification to parse `trace-id` and `parent-id`. The tracing system will only parse `flags` values supported by the current version of this specification and ignore all other values. If parsing fails, the tracing system creates a new `traceparent` header and removes all entries from `tracestate`.
 3. When the tracing system supports the version number it validates `trace-id` and `parent-id`.
-  - If either `trace-id`, `parent-id` or `flags`  are invalid,  the tracing system creates a new `traceparent` header and removes all entries from `tracecontext`.
+  - If either `trace-id`, `parent-id` or `flags`  are invalid,  the tracing system creates a new `traceparent` header and removes all entries from `tracestate`.
 4. After the system has validated the traceparent, it validates the tracestate
     > **PENDING DECISION**: How do we do this exactly?
 
-5. The tracing system modifies the `traceparent` header. 
+If calls downstream ...
+
+5. The tracing system modifies the `traceparent` header.
     1. **Update `parent-id`**. The value of property `parent-id` can be set to the new value representing the ID of the current operation. This is the most common mutation and should be considered a default.
-    > **PENDING DECISION**: This definition is not entirely clear.   
+    > **PENDING DECISION**: This definition is not entirely clear.
     2. **Indicate recorded state**. The value of `recorded` flag of `trace-flags` may be set to `1` if it had the value `0` before or vice versa. `parent-id` MUST be set to the new value with the `recorded` flag update. See details of `recorded` flag for more information on how this flag is recommended to be used.
     3. **Update `recorded`**. The value of `recorded` reflects the caller's recording behavior: either the trace data were dropped or may have been recorded out-of-band. This mutation gives the downstream tracer information about the likelihood its parent's information was recorded.
 6. Tracing System modifies the `tracestate` header
