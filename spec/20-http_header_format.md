@@ -91,12 +91,22 @@ Contains the ID of the whole trace graph as 16-byte array represented as
 hexadecimal string and is used to uniquely identify a distributed trace throughout
 all participating systems.
 
-**Example:** `4bf92f3577b34da6a3ce929d0e0e4736`.
+`Trace-id` is used to uniquely identify a <a>distributed trace</a>. So implementation
+should generate globally unique values. Many algorithms of unique identification
+generation are based on some constant part - time or host based and a random
+value. There are systems that make random sampling decisions based on the value
+of `trace-id`. So to increase interoperability it is recommended to keep the
+random part on the right side of `trace-id` value.
 
-> **Note:** As some systems rely on randomness of the `trace-id` as a whole,
-> the provided ID MUST NOT contain encoded information that leads to non-random
-> parts (e.g. using a host ID as prefix).
-> A randomness as provided by UUID v4 is considered to be sufficient.
+When a system operates with a shorter `trace-id` - it is recommended to fill-in
+the extra bytes with random values rather than zeroes. Let's say the system
+works with a 8-byte `trace-id` like `3ce929d0e0e4736`. Instead of setting
+`trace-id` value to `0000000000000003ce929d0e0e4736` it is recommended to
+generate a value like `4bf92f3577b34da6a3ce929d0e0e4736` where
+`4bf92f3577b34da6a` is a random value or a function of time & host value. Note,
+even though a system may operate with a shorter `trace-id` for <a>distributed trace</a>
+reporting - full `trace-id` should be propagated to conform to the
+specification.
 
 ##### Rules
 
@@ -168,33 +178,33 @@ The current version of the specification only supports a single flag called
 > **NEEDS EDITING - this whole section should be reviewed for grammar and clarity.**
 
 When set, the least significant bit documents that the caller may have recorded
-trace data. A caller that does not record trace data out-of-band leaves this
-flag unset.
+trace data. A caller who does not record trace data out-of-band leaves this flag
+unset.
 
-Many distributed tracing scenarios may break when only a subset of calls within
-a distributed trace were recorded. As specific load recording information about
-every incoming and outgoing request becomes prohibitively expensive. Making a
-random or component-specific decision for data collection leads to fragmented
-data in every distributed trace. Thus, it is typical for tracing vendors and
-platforms to pass the recording decision for a given distributed trace or
-information needed to make this decision.
+Many distributed tracing scenarios may be broken when only a subset of calls
+participated in a <a>distributed trace</a> were recorded. At certain load recording
+information about every incoming and outgoing request becomes prohibitively
+expensive. Making a random or component-specific decision for data collection
+will lead to fragmented data in every <a>distributed trace</a>. Thus it is typical for
+tracing vendors and platforms to pass recording decision for given distributed
+trace or information needed to make this decision.
 
-There is no consensus on what is the best algorithm to make a recording decision.
-Various techniques include probability sampling (sample 1 out of 100 distributed
-traced by flipping a coin), delayed decision (make collection decision based on
-duration or a result of a call deferred sampling (let callee decide whether
-information about this request need to be collected). There are variations and
-customizations of every technique which can be tracing vendor specific or
-application defined.
+There is no consensus on what is the best algorithm to make a recording
+decision. Various techniques include: probability sampling (sample 1 out of 100
+<a>distributed traces</a> by flipping a coin), delayed decision (make collection
+decision based on duration or a result of a call), deferred sampling (let callee
+decide whether information about this request need to be collected). There are
+variations and customizations of every technique which can be tracing vendor
+specific or application defined.
 
-`tracestate` is designed to handle the variety of techniques for making recording
-decisions specific to a given tracing system or a platform. The `recorded` flag
-is introduced for better interoperability between vendors. It allows to
-communicate a recording decision and to provide a better customer experience in
-participating systems.
+Field `tracestate` is designed to handle the variety of techniques for making
+recording decision specific (along any other specific information) for a given
+tracing system or a platform. Flag `recorded` is introduced for better
+interoperability between vendors. It allows to communicate recording decision
+and enable better experience for the customer.
 
-For example, when a SaaS services participates in a distributed trace, this
-service has no knowledge of the tracing system used by its caller but it may
+For example, when SaaS services participate in <a>distributed trace</a> - this service
+has no knowledge of tracing system used by its caller. But this service may
 produce records of incoming requests for monitoring or troubleshooting purposes.
 The flag `recorded` can be used to ensure that information about requests that
 were marked for recording by the caller will also be recorded by SaaS service
