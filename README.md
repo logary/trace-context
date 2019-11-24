@@ -26,8 +26,8 @@ specification.
 ## Goal
 
 This specification defines formats to pass trace context information across
-systems. Our goal is to share this with the community so that various tracing
-and diagnostics products can operate together.
+system boundaries. Our goal is to share this with the community so that various
+tracing and diagnostics products can operate well together.
 
 ## Reference Implementations
 
@@ -37,7 +37,7 @@ available.
 A simplistic regex-based implementation can be found in the `test` folder. This
 implementation has 100% compliance to the test suite.
 
-[Open Census](https://opencensus.io) has implementations for the following
+[Open Census](https://opencensus.io) has implementations in the following
 languages:
 
 1. [C#](https://github.com/census-instrumentation/opencensus-csharp/blob/4a8ddf6727eafda97a06c7c30d8a4fc2ec8b8e2f/src/OpenCensus/Trace/Propagation/TraceContextFormat.cs)
@@ -48,15 +48,17 @@ languages:
 6. [Python](https://github.com/census-instrumentation/opencensus-python/blob/2aef803e4a786fe0ffb14b168a8458283ccd72a0/opencensus/trace/propagation/trace_context_http_header_format.py)
 7. [Ruby](https://github.com/census-instrumentation/opencensus-ruby/blob/8cb9771b218e440e825c99981ea405d40f735926/lib/opencensus/trace/formatters/trace_context.rb)
 
-.NET Framework will ship trace context specification support in the upcoming
+The .NET Framework will ship trace context specification support in the upcoming
 version. See
 [Activity](https://github.com/dotnet/corefx/blob/master/src/System.Diagnostics.DiagnosticSource/src/System/Diagnostics/Activity.cs)
 for implementation details.
 
-Elastic has [node.js
+Elastic has a [node.js
 implementation](https://github.com/elastic/node-traceparent).
 
-LightStep has [Go implementation](https://github.com/lightstep/tracecontext.go).
+LightStep has a [Go implementation](https://github.com/lightstep/tracecontext.go).
+
+Logary has a [F# implementation](https://github.com/logary/logary/blob/master/src/Logary/Trace/Propagation.fs)
 
 ## Why are we doing this
 

@@ -27,6 +27,12 @@ This page contains an alphabetical list of projects and vendors that currently i
 **Implementations:**
 [Go](https://github.com/lightstep/tracecontext.go)
 
+## Logary
+**Website:** [logary.tech](https://logary.tech)
+
+**Implementations:**
+[F#](https://github.com/logary/logary/blob/master/src/Logary/Trace/Propagation.fs)
+
 ## OpenCensus
 **Website:** [opencensus.io](https://opencensus.io)
 

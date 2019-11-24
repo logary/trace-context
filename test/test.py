@@ -271,7 +271,7 @@ class TraceContextTest(TestBase):
 		traceparent, tracestate = self.make_single_request_and_get_tracecontext([
 			['traceparent', '00-00000000000000000000000000000000-1234567890123456-01'],
 		])
-		self.assertNotEqual(traceparent.trace_id.hex(), '00000000000000000000000000000000')
+		self.assertNotEqual(traceparent.trace_id.hex(), '00000000000000000000000000000000', 'You must not forward an all-zero trace_id value; generate a new trace_id instead')
 
 	def test_traceparent_trace_id_illegal_characters(self):
 		'''
@@ -318,7 +318,7 @@ class TraceContextTest(TestBase):
 		traceparent, tracestate = self.make_single_request_and_get_tracecontext([
 			['traceparent', '00-12345678901234567890123456789012-0000000000000000-01'],
 		])
-		self.assertNotEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
+		self.assertNotEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012', 'Expected new trace_id to be generated')
 
 	def test_traceparent_parent_id_illegal_characters(self):
 		'''
